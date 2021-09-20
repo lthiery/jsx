@@ -33,7 +33,8 @@
     space = 0,
     indent = 0,
     depth = 0,
-    newline = <<$\n>>
+    newline = <<$\n>>,
+    float_format = undefined
 }).
 
 -type config() :: proplists:proplist().
@@ -116,9 +117,12 @@ encode(literal, Literal, _Config) ->
     erlang:atom_to_list(Literal);
 encode(integer, Integer, _Config) ->
     erlang:integer_to_list(Integer);
-encode(float, Float, _Config) ->
+encode(float, Float, Config) ->
+%%    case proplists:get_value(float_formatter, Config) of
+%%        undefined -> io_lib:format("~p", [Float]);
+%%        Fun -> Fun(Float)
+%%    end.
     io_lib:format("~p", [Float]).
-
 
 space(Config) ->
     case Config#config.space of
@@ -360,6 +364,17 @@ encode_test_() ->
         {"true", ?_assert(encode(literal, true, #config{}) =:= "true")},
         {"false", ?_assert(encode(literal, false, #config{}) =:= "false")},
         {"null", ?_assert(encode(literal, null, #config{}) =:= "null")}
+    ].
+
+four_decimals(_Float) ->
+    "foo".
+
+encode_with_float_formatter_test_() ->
+    [
+        {"3.1234567890987654321",
+            ?_assert(
+                encode(float, 3.1234567890987654321, #config{float_format = four_decimals }) =:= ["3.1234567890987655"])
+        }
     ].
 
 

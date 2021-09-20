@@ -46,6 +46,8 @@
 -type handler() :: handler_type(handler()).
 -export_type([handler/0]).
 
+-type float_formatter() :: fun((float())-> iolist()).
+
 -type config() :: #config{}.
 -export_type([config/0]).
 
@@ -142,8 +144,10 @@ parse_config([{incomplete_handler, IncompleteHandler}|Rest] = Options, Config) w
         false -> parse_config(Rest, Config#config{incomplete_handler=IncompleteHandler})
         ; _ -> erlang:error(badarg, [Options, Config])
     end;
-parse_config(_Options, _Config) -> erlang:error(badarg).
+parse_config([{float_format, Fun}|Rest], Config) when is_function(Fun, 1) ->
+    parse_config(Rest, Config#config{float_format=Fun});
 
+parse_config(_Options, _Config) -> erlang:error(badarg).
 
 parse_strict([], Rest, Config) -> parse_config(Rest, Config);
 parse_strict([comments|Strict], Rest, Config) ->
@@ -215,7 +219,8 @@ valid_flags() ->
         stream,
         uescape,
         error_handler,
-        incomplete_handler
+        incomplete_handler,
+        float_format
     ].
 
 
