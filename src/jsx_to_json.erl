@@ -405,5 +405,4 @@ handle_event_test_() ->
         } || {Title, JSON, _, Events} <- Data
     ].
 
-
 -endif.

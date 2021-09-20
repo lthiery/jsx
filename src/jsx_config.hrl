@@ -15,5 +15,5 @@
     unescaped_jsonp = false             :: boolean(),
     error_handler = false               :: false | jsx_config:handler(),
     incomplete_handler = false          :: false | jsx_config:handler(),
-    float_format = false                :: false | jsx_config:float_formatter()
+    float_formatter = false             :: false | jsx_config:float_formatter()
 }).

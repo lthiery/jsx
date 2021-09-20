@@ -57,7 +57,7 @@
                 | {strict, [strict_option()]}
                 | {error_handler, fun((any(), any(), any()) -> ok)}
                 | {incomplete_handler, fun((any(), any(), any()) -> ok)}
-                | {float_format, fun((float())-> iolist())}
+                | {float_formatter, fun((float())-> iolist())}
                 | {return_maps, boolean()}
                 | {labels, label_option()}
                 | {space, non_neg_integer()}
@@ -99,7 +99,7 @@
                     | uescape
                     | error_handler
                     | incomplete_handler
-                    | float_format.
+                    | float_formatter.
 
 %% parsing of jsx config
 -spec parse_config(Config::options()) -> config().
@@ -147,9 +147,9 @@ parse_config([{incomplete_handler, IncompleteHandler}|Rest] = Options, Config) w
         false -> parse_config(Rest, Config#config{incomplete_handler=IncompleteHandler})
         ; _ -> erlang:error(badarg, [Options, Config])
     end;
-parse_config([{float_format, FloatFormat}|Rest] = Options, Config) when is_function(FloatFormat, 3) ->
-    case Config#config.float_format of
-        false -> parse_config(Rest, Config#config{float_format=FloatFormat})
+parse_config([{float_formatter, FloatFormatter}|Rest] = Options, Config) when is_function(FloatFormatter, 1) ->
+    case Config#config.float_formatter of
+        false -> parse_config(Rest, Config#config{float_formatter=FloatFormatter})
         ; _ -> erlang:error(badarg, [Options, Config])
     end;
 parse_config(_Options, _Config) -> erlang:error(badarg).
@@ -225,7 +225,8 @@ valid_flags() ->
         stream,
         uescape,
         error_handler,
-        incomplete_handler
+        incomplete_handler,
+        float_format
     ].
 
 
