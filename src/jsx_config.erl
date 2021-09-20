@@ -46,6 +46,8 @@
 -type handler() :: handler_type(handler()).
 -export_type([handler/0]).
 
+-type float_formatter() :: fun((float())-> iolist()).
+
 -type config() :: #config{}.
 -export_type([config/0]).
 
