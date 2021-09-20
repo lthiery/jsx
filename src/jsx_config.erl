@@ -29,6 +29,7 @@
 
 -ifdef(TEST).
 -export([fake_error_handler/3]).
+-export([fake_float_formatter/1]).
 -endif.
 
 -include("jsx_config.hrl").
@@ -179,6 +180,7 @@ config_to_list(Config) ->
     reduce_config(lists:map(
         fun ({error_handler, F}) -> {error_handler, F};
             ({incomplete_handler, F}) -> {incomplete_handler, F};
+            ({float_formatter, F}) -> {float_formatter, F};
             ({Key, true}) -> Key
         end,
         lists:filter(
@@ -226,7 +228,7 @@ valid_flags() ->
         uescape,
         error_handler,
         incomplete_handler,
-        float_format
+        float_formatter
     ].
 
 
@@ -328,6 +330,10 @@ config_test_() ->
             #config{incomplete_handler=fun ?MODULE:fake_error_handler/3},
             parse_config([{incomplete_handler, fun ?MODULE:fake_error_handler/3}])
         )},
+        {"float_formatter flag", ?_assertEqual(
+            #config{float_formatter=fun ?MODULE:fake_float_formatter/1},
+            parse_config([{float_formatter, fun ?MODULE:fake_float_formatter/1}])
+        )},
         {"two incomplete_handlers defined", ?_assertError(
             badarg,
             parse_config([
@@ -394,11 +400,16 @@ config_to_list_test_() ->
         {"incomplete handler", ?_assertEqual(
             [{incomplete_handler, fun ?MODULE:fake_error_handler/3}],
             config_to_list(#config{incomplete_handler=fun ?MODULE:fake_error_handler/3})
+        )},
+        {"float formatter", ?_assertEqual(
+            [{float_formatter, fun ?MODULE:fake_float_formatter/1}],
+            config_to_list(#config{float_formatter=fun ?MODULE:fake_float_formatter/1})
         )}
     ].
 
 
 fake_error_handler(_, _, _) -> ok.
+fake_float_formatter(_Float) -> "foo".
 
 
 -endif.

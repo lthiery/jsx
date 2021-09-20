@@ -405,4 +405,15 @@ handle_event_test_() ->
         } || {Title, JSON, _, Events} <- Data
     ].
 
+%%encode_with_float_formatter_test_() ->
+%%    [
+%%        {"3.1234567890987654321",
+%%            ?_assert(
+%%                encode(float, 3.1234567890987654321, #config{float_formatter = fun ?MODULE:four_decimals/1 }) =:= ["3.1234567890987655"])
+%%        }
+%%    ].
+%%
+%%four_decimals(_Float) ->
+%%    "foo".
+
 -endif.
