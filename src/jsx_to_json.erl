@@ -37,7 +37,7 @@
     indent = 0,
     depth = 0,
     newline = <<$\n>>,
-    float_formatter = undefined
+    float_formatter = false
 }).
 
 -type config() :: proplists:proplist().
@@ -124,7 +124,7 @@ encode(integer, Integer, _Config) ->
     erlang:integer_to_list(Integer);
 encode(float, Float, Config) ->
     case Config#config.float_formatter of
-        undefined -> io_lib:format("~p", [Float]);
+        false -> io_lib:format("~p", [Float]);
         Fun -> Fun(Float)
     end.
 
