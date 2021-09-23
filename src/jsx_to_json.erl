@@ -200,38 +200,38 @@ insert(Key, {[{object, Object}|Rest], Config}) ->
     {[{object, Key, Object}] ++ Rest, Config};
 insert(Value, {[{object, Key, ?start_object}|Rest], Config}) ->
     {
-        [{object, [
-            ?start_object,
-            indent(Config),
-            Key,
-            ?colon,
-            space(Config),
-            Value
-        ]}] ++ Rest,
+            [{object, [
+                ?start_object,
+                indent(Config),
+                Key,
+                ?colon,
+                space(Config),
+                Value
+            ]}] ++ Rest,
         Config
     };
 insert(Value, {[{object, Key, Object}|Rest], Config}) ->
     {
-        [{object, [
-            Object,
-            ?comma,
-            indent_or_space(Config),
-            Key,
-            ?colon,
-            space(Config),
-            Value
-        ]}] ++ Rest,
+            [{object, [
+                Object,
+                ?comma,
+                indent_or_space(Config),
+                Key,
+                ?colon,
+                space(Config),
+                Value
+            ]}] ++ Rest,
         Config
     };
 insert(Value, {[{array, ?start_array}|Rest], Config}) ->
     {[{array, [?start_array, indent(Config), Value]}] ++ Rest, Config};
 insert(Value, {[{array, Array}|Rest], Config}) ->
     {
-        [{array, [Array,
-            ?comma,
-            indent_or_space(Config),
-            Value
-        ]}] ++ Rest,
+            [{array, [Array,
+                ?comma,
+                indent_or_space(Config),
+                Value
+            ]}] ++ Rest,
         Config
     };
 insert(_, _) -> erlang:error(badarg).
@@ -327,35 +327,35 @@ encode_test_() ->
         {"0.0", ?_assert(encode(float, 0.0, #config{}) =:= ["0.0"])},
         {"1.0", ?_assert(encode(float, 1.0, #config{}) =:= ["1.0"])},
         {"-1.0", ?_assert(encode(float, -1.0, #config{}) =:= ["-1.0"])},
-        {"3.1234567890987654321", 
+        {"3.1234567890987654321",
             ?_assert(
                 encode(float, 3.1234567890987654321, #config{}) =:= ["3.1234567890987655"])
         },
         {"1.0e23", ?_assert(encode(float, 1.0e23, #config{}) =:= ["1.0e23"])},
         {"0.3", ?_assert(encode(float, 3.0/10.0, #config{}) =:= ["0.3"])},
         {"0.0001", ?_assert(encode(float, 0.0001, #config{}) =:= ["0.0001"]
-                                orelse encode(float, 0.0001, #config{}) =:= ["1.0e-4"])}, % OTP-24
+            orelse encode(float, 0.0001, #config{}) =:= ["1.0e-4"])}, % OTP-24
         {"0.00001", ?_assert(encode(float, 0.00001, #config{}) =:= ["1.0e-5"])},
         {"0.00000001", ?_assert(encode(float, 0.00000001, #config{}) =:= ["1.0e-8"])},
         {"1.0e-323", ?_assert(encode(float, 1.0e-323, #config{}) =:= ["1.0e-323"])},
         {"1.0e308", ?_assert(encode(float, 1.0e308, #config{}) =:= ["1.0e308"])},
-        {"min normalized float", 
+        {"min normalized float",
             ?_assert(
                 encode(float, math:pow(2, -1022), #config{}) =:= ["2.2250738585072014e-308"]
             )
         },
-        {"max normalized float", 
+        {"max normalized float",
             ?_assert(
-                encode(float, (2 - math:pow(2, -52)) * math:pow(2, 1023), #config{}) 
+                encode(float, (2 - math:pow(2, -52)) * math:pow(2, 1023), #config{})
                     =:= ["1.7976931348623157e308"]
             )
         },
-        {"min denormalized float", 
+        {"min denormalized float",
             ?_assert(encode(float, math:pow(2, -1074), #config{}) =:= ["5.0e-324"])
         },
-        {"max denormalized float", 
+        {"max denormalized float",
             ?_assert(
-                encode(float, (1 - math:pow(2, -52)) * math:pow(2, -1022), #config{}) 
+                encode(float, (1 - math:pow(2, -52)) * math:pow(2, -1022), #config{})
                     =:= ["2.225073858507201e-308"]
             )
         },
@@ -392,13 +392,13 @@ format_test_() ->
         }
     ],
     [{Title, ?_assertEqual(Min, jsx:minify(Pretty))} || {Title, Min, Pretty} <- Cases] ++
-        [{Title, ?_assertEqual(Pretty, jsx:prettify(Min))} || {Title, Min, Pretty} <- Cases].
+    [{Title, ?_assertEqual(Pretty, jsx:prettify(Min))} || {Title, Min, Pretty} <- Cases].
 
 custom_newline_test_() ->
     [
         {"single key object", ?_assert(
-            jsx:format(<<"{\"k\":\"v\"}">>, [space, {indent, 2}, {newline, <<$\r>>}]) 
-                =:= <<"{\r  \"k\": \"v\"\r}">>) 
+            jsx:format(<<"{\"k\":\"v\"}">>, [space, {indent, 2}, {newline, <<$\r>>}])
+                =:= <<"{\r  \"k\": \"v\"\r}">>)
         }
     ].
 
@@ -407,9 +407,9 @@ handle_event_test_() ->
     [
         {
             Title, ?_assertEqual(
-                JSON,
-                lists:foldl(fun handle_event/2, init([]), Events ++ [end_json])
-            )
+            JSON,
+            lists:foldl(fun handle_event/2, init([]), Events ++ [end_json])
+        )
         } || {Title, JSON, _, Events} <- Data
     ].
 

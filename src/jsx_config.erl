@@ -29,6 +29,7 @@
 
 -ifdef(TEST).
 -export([fake_error_handler/3]).
+-export([fake_float_formatter/1]).
 -endif.
 
 -include("jsx_config.hrl").
@@ -42,9 +43,12 @@
          list({pre_encode, fun((any()) -> any())} |
               {error_handler, Handler} |
               {incomplete_handler, Handler} |
+              {float_formatter, Handler} |
               atom())) -> any()).
 -type handler() :: handler_type(handler()).
 -export_type([handler/0]).
+
+-type float_formatter() :: fun((float())-> iolist()).
 
 -type config() :: #config{}.
 -export_type([config/0]).
@@ -54,6 +58,7 @@
                 | {strict, [strict_option()]}
                 | {error_handler, fun((any(), any(), any()) -> ok)}
                 | {incomplete_handler, fun((any(), any(), any()) -> ok)}
+                | {float_formatter, fun((float())-> iolist())}
                 | {return_maps, boolean()}
                 | {labels, label_option()}
                 | {space, non_neg_integer()}
@@ -94,7 +99,8 @@
                     | stream
                     | uescape
                     | error_handler
-                    | incomplete_handler.
+                    | incomplete_handler
+                    | float_formatter.
 
 %% parsing of jsx config
 -spec parse_config(Config::options()) -> config().
@@ -142,6 +148,11 @@ parse_config([{incomplete_handler, IncompleteHandler}|Rest] = Options, Config) w
         false -> parse_config(Rest, Config#config{incomplete_handler=IncompleteHandler})
         ; _ -> erlang:error(badarg, [Options, Config])
     end;
+parse_config([{float_formatter, FloatFormatter}|Rest] = Options, Config) when is_function(FloatFormatter, 1) ->
+    case Config#config.float_formatter of
+        false -> parse_config(Rest, Config#config{float_formatter=FloatFormatter})
+        ; _ -> erlang:error(badarg, [Options, Config])
+    end;
 parse_config(_Options, _Config) -> erlang:error(badarg).
 
 
@@ -169,6 +180,7 @@ config_to_list(Config) ->
     reduce_config(lists:map(
         fun ({error_handler, F}) -> {error_handler, F};
             ({incomplete_handler, F}) -> {incomplete_handler, F};
+            ({float_formatter, F}) -> {float_formatter, F};
             ({Key, true}) -> Key
         end,
         lists:filter(
@@ -215,7 +227,8 @@ valid_flags() ->
         stream,
         uescape,
         error_handler,
-        incomplete_handler
+        incomplete_handler,
+        float_formatter
     ].
 
 
@@ -317,6 +330,10 @@ config_test_() ->
             #config{incomplete_handler=fun ?MODULE:fake_error_handler/3},
             parse_config([{incomplete_handler, fun ?MODULE:fake_error_handler/3}])
         )},
+        {"float_formatter flag", ?_assertEqual(
+            #config{float_formatter=fun ?MODULE:fake_float_formatter/1},
+            parse_config([{float_formatter, fun ?MODULE:fake_float_formatter/1}])
+        )},
         {"two incomplete_handlers defined", ?_assertError(
             badarg,
             parse_config([
@@ -383,11 +400,16 @@ config_to_list_test_() ->
         {"incomplete handler", ?_assertEqual(
             [{incomplete_handler, fun ?MODULE:fake_error_handler/3}],
             config_to_list(#config{incomplete_handler=fun ?MODULE:fake_error_handler/3})
+        )},
+        {"float formatter", ?_assertEqual(
+            [{float_formatter, fun ?MODULE:fake_float_formatter/1}],
+            config_to_list(#config{float_formatter=fun ?MODULE:fake_float_formatter/1})
         )}
     ].
 
 
 fake_error_handler(_, _, _) -> ok.
+fake_float_formatter(_Float) -> "foo".
 
 
 -endif.
